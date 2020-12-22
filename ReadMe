@@ -1,0 +1,103 @@
+#Докер файл
+FROM openjdk - базовый образ с которого мы начинаем сборку (docker берет образ openjdk с dockerhub)
+COPY src JavaDocker -указание скопировать содержимое папки src в контейнер JavaDocker
+WORKDIR JavaDocker  -указание перейти в папку JavaDocker
+RUN mkdir -p bin  -указание создать папку bin
+RUN javac -d bin ./com/myapp/HelloWorld.java
+ENV TZ Europe/Moscow - Устанавливает московское время внутри контейнера
+WORKDIR bin
+CMD ["java", "com.myapp.HelloWorld"] - указание выполнить команду java HelloWorld.java
+
+#Вместо CMD ["java", "com.myapp.HelloWorld"] можно применить ENTRYPOINT ["java", "com.myapp.HelloWorld"]
+
+#Сборка докер имиджа после создания докер файла
+#-t - это тэг после которого мы пишем как назовем наш новый образ(имидж)
+#helloworld-local -это имя нашего образа (имиджа)
+#точка (.) - это путь откуда будет сборка, означает из текущей папки D:\DockerStudy\JavaDocker>
+docker build -t helloworld-local .
+
+#Проверка создался ли докер имидж
+docker images
+
+#Получаем ответ
+REPOSITORY         TAG       IMAGE ID       CREATED          SIZE
+helloworld-local   latest    dc6c75148ed9   31 seconds ago   486MB
+
+#Запускаем докер контейнер по кусочку IMAGE ID или по REPOSITORY (имени имиджа)
+docker run dc6
+docker run helloworld-local
+
+#Посмотреть работающие докер контейнеры
+docker ps
+
+#Посмотреть все докер контейнеры работающие и отработанные
+docker ps -a
+
+#Получаем ответ
+CONTAINER ID   IMAGE     COMMAND                  CREATED       STATUS                   PORTS     NAMES
+6288d9d7789e   dc6       "java com.myapp.Hell…"   3 hours ago   Exited (0) 3 hours ago             great_buck
+
+#great_buck -это имя контейнера
+#dc6 -это IMAGE из которого сделан контейнер great_buck
+
+#Запускаем докер контейнер по кусочку IMAGE ID или по REPOSITORY и даем контейнеру имя new_container_name
+docker run --name new_container_name dc6
+docker run --name new_container_name helloworld-local
+
+#Посмотреть все докер контейнеры работающие и отработанные
+docker ps -a
+
+#Получаем ответ
+CONTAINER ID   IMAGE              COMMAND                  CREATED          STATUS                      PORTS     NAMES
+2a772b214b5c   helloworld-local   "java com.myapp.Hell…"   16 seconds ago   Exited (0) 14 seconds ago             new_container_name
+6288d9d7789e   dc6                "java com.myapp.Hell…"   3 hours ago      Exited (0) 3 hours ago                great_buck
+
+#new_container_name -это имя нового контейнера
+#helloworld-local -это IMAGE из которого сделан контейнер new_container_name
+#STATUS Exited - означает, что контейнеры уже остановились и не работают
+
+#Удалить контейнер с именем new_container_name
+docker rm new_container_name
+
+#Посмотреть все докер контейнеры работающие и отработанные
+docker ps -a
+
+#Получаем ответ
+CONTAINER ID   IMAGE     COMMAND                  CREATED       STATUS                   PORTS     NAMES
+6288d9d7789e   dc6       "java com.myapp.Hell…"   4 hours ago   Exited (0) 4 hours ago             great_buck
+
+#Вывести все CONTAINER ID
+docker ps -a -q
+
+#Получаем ответ
+6288d9d7789e
+
+#Запускаем контейнер из IMAGE helloworld-local, даем контейнеру имя new_container_name, контейнер выполняется и удаляется автоматически
+docker run --rm --name new_container_name helloworld-local
+
+#Запускаем контейнер из IMAGE helloworld-local, даем контейнеру имя new_container_name, задаем в контейнере московское время -e TZ=Europe/Moscow,
+#контейнер выполняется и удаляется автоматически
+docker run --rm --name new_container_name -e TZ=Europe/Moscow  helloworld-local
+
+#Посмотреть наличие docker volume (докер значений, папок)
+docker volume ls
+
+#Получаем ответ
+DRIVER    VOLUME NAME
+
+#Останоовить работающий контейнер по CONTAINER ID
+docker stop 6288d9d7789e
+
+#Удалить IMAGE по его REPOSITORY
+docker rmi helloworld-local
+
+#Удалить IMAGE по его IMAGE ID
+docker rmi dc6c75148ed9
+
+Выводит айдишники имеджей IMAGE ID
+docker images -q
+
+#Получаем ответ
+dc6c75148ed9
+
+
